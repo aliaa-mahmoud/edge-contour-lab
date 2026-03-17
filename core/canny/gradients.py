@@ -4,7 +4,7 @@ Returns magnitude, direction (in degrees), and raw Gx/Gy components.
 """
 
 import numpy as np
-
+from numpy.lib.stride_tricks import sliding_window_view
 
 # ── Sobel kernels ──────────────────────────────────────────────────────────────
 SOBEL_X = np.array([[-1, 0, 1],
@@ -16,16 +16,26 @@ SOBEL_Y = np.array([[-1, -2, -1],
                      [ 1,  2,  1]], dtype=np.float64)
 
 
-def _convolve2d(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
-    """Minimal 2-D convolution with reflect padding."""
-    kh, kw = kernel.shape
-    ph, pw = kh // 2, kw // 2
-    padded = np.pad(image, ((ph, ph), (pw, pw)), mode="reflect")
-    output = np.zeros_like(image, dtype=np.float64)
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            output[i, j] = (padded[i:i + kh, j:j + kw] * kernel).sum()
-    return output
+def convolve(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    k_h, k_w = kernel.shape
+    pad_h, pad_w = k_h // 2, k_w // 2
+    flipped = np.flipud(np.fliplr(kernel))   # flip for convolution
+
+    # gray image
+    if image.ndim == 2:
+        padded = np.pad(image.astype(np.float64),
+                        ((pad_h, pad_h), (pad_w, pad_w)), mode='constant')
+        windows = sliding_window_view(padded, (k_h, k_w))
+        return np.einsum('ijkl,kl->ij', windows, flipped)
+    # colored image
+    else:
+        out = np.zeros(image.shape, dtype=np.float64)
+        for c in range(image.shape[2]):
+            padded = np.pad(image[:, :, c].astype(np.float64),
+                            ((pad_h, pad_h), (pad_w, pad_w)), mode='edge')
+            windows = sliding_window_view(padded, (k_h, k_w))
+            out[:, :, c] = np.einsum('ijkl,kl->ij', windows, flipped)
+        return np.clip(out, 0, 255).astype(np.uint8)  # clipping is better for colored images
 
 
 def compute_gradients(blurred: np.ndarray):
@@ -43,8 +53,8 @@ def compute_gradients(blurred: np.ndarray):
     gx         : raw horizontal gradient
     gy         : raw vertical gradient
     """
-    gx = _convolve2d(blurred, SOBEL_X)
-    gy = _convolve2d(blurred, SOBEL_Y)
+    gx = convolve(blurred, SOBEL_X)
+    gy = convolve(blurred, SOBEL_Y)
 
     magnitude = np.hypot(gx, gy)
     magnitude = (magnitude / magnitude.max() * 255.0) if magnitude.max() > 0 else magnitude

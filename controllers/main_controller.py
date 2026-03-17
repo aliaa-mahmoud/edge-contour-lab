@@ -80,10 +80,14 @@ class AppController(QObject):
 
 		# Local imports avoid circular imports with MainController base usage.
 		from controllers.canny_controller import CannyController
+		from controllers.hough_controller import HoughController
 		from controllers.snake_controller import SnakeController
 
 		self.canny_controller = CannyController(self.window)
 		self.canny_controller.bind_ui(self.window)
+
+		self.hough_controller = HoughController(self.window)
+		self.hough_controller.bind_ui(self.window)
 
 		self.snake_controller = SnakeController(self.window)
 		self.snake_controller.bind_ui(self.window)
@@ -94,6 +98,8 @@ class AppController(QObject):
 
 		self.canny_controller.status_message.connect(self.window.statusbar.showMessage)
 		self.canny_controller.error_occurred.connect(self._show_error)
+		self.hough_controller.status_message.connect(self.window.statusbar.showMessage)
+		self.hough_controller.error_occurred.connect(self._show_error)
 		self.snake_controller.status_message.connect(self.window.statusbar.showMessage)
 		self.snake_controller.error_occurred.connect(self._show_error)
 
@@ -110,10 +116,12 @@ class AppController(QObject):
 		idx = self.window.tabWidget.currentIndex()
 		if idx == 0:
 			self.canny_controller.load_image(path)
+		elif idx == 1:
+			self.hough_controller.load_image(path)
 		elif idx == 2:
 			self.snake_controller.load_image(path)
 		else:
-			self.window.statusbar.showMessage("Open Image is available on Canny and Snake tabs.")
+			self.window.statusbar.showMessage("Open Image is available on Canny, Shapes, and Snake tabs.")
 
 	def _show_error(self, msg: str):
 		QMessageBox.critical(self.window, "Error", msg)

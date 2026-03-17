@@ -20,23 +20,17 @@ class _CannyImageInteractor(QObject):
         self._pixmap_factory = pixmap_factory
         self._pixmap_orig: QPixmap | None = None
         self._label.setAlignment(Qt.AlignCenter)
-        self._label.installEventFilter(self)
-
-    def eventFilter(self, obj, event):
-        if obj is self._label and event.type() == QEvent.Resize:
-            self.refresh()
-        return False
 
     def set_array(self, array: np.ndarray):
         self._pixmap_orig = self._pixmap_factory(array)
-        self.refresh()
+        self._display_scaled()
 
-    def refresh(self):
+    def _display_scaled(self):
         if self._pixmap_orig is None:
             return
-        scaled = self._pixmap_orig.scaled(
-            self._label.size(),
-            Qt.KeepAspectRatio,
+        # Scale uniformly to fit label size while keeping aspect ratio
+        scaled = self._pixmap_orig.scaledToWidth(
+            min(self._label.width(), self._label.height()),
             Qt.SmoothTransformation,
         )
         self._label.setPixmap(scaled)

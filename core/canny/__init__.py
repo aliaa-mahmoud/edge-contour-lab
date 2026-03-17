@@ -13,7 +13,7 @@ from .hysteresis   import hysteresis
 
 
 def run_canny(image,
-              kernel_size: int   = 5,
+              kernel_size: int   = 3,
               sigma:       float = 1.4,
               low_ratio:   float = 0.05,
               high_ratio:  float = 0.15):
