@@ -538,7 +538,7 @@
            <item>
             <widget class="QLabel" name="snakeLegendLbl">
              <property name="text">
-              <string>Yellow: initial, Red: evolved</string>
+              <string>Green: initial, Blue: evolved</string>
              </property>
             </widget>
            </item>
