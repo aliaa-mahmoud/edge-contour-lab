@@ -7,10 +7,10 @@ Launches the edge-contour-lab PyQt5 window.
 import sys
 from pathlib import Path
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore    import Qt
 
-from ui.main_window  import MainWindow
+from controllers.main_controller import AppController
 
 
 def main():
@@ -27,7 +27,9 @@ def main():
     if qss_path.exists():
         app.setStyleSheet(qss_path.read_text())
 
-    window = MainWindow()
+    window = QMainWindow()
+    app_controller = AppController(window)
+    window._app_controller = app_controller
     window.show()
     sys.exit(app.exec_())
 
