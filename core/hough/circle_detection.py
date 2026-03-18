@@ -8,10 +8,7 @@ import numpy as np
 
 
 def detect_circles(edges: np.ndarray,
-                   min_radius: int = 10,
-                   max_radius: int = 100,
-                   threshold_percentage: float = 0.5,
-                   distance: int = 15) -> list:
+                   threshold_percentage: float = 0.5) -> list:
     """
     Detect circles using the Hough transform (from scratch).
 
@@ -27,6 +24,10 @@ def detect_circles(edges: np.ndarray,
     -------
     circles : list of (center_x, center_y, radius) tuples
     """
+    min_radius = 10
+    max_radius = 100
+    distance = 15
+
     if edges.dtype != np.uint8:
         edges = (edges > 0).astype(np.uint8) * 255
     
