@@ -3,27 +3,50 @@ Active Contour Model (Snake) with Greedy Algorithm
 Evolves a contour to minimize energy through local neighbor search.
 """
 
-from core.snake.energy import greedy_snake, compute_image_energy
+from core.snake.energy import compute_image_energy, compute_internal_energy
 import numpy as np
 
 
-def initialize_circular_contour(center, radius, num_points=50):
-    """Initialize a circular contour around given center.
-    
-    Args:
-        center: (cx, cy) center point
-        radius: radius of circle
-        num_points: number of points on the contour
-    
-    Returns:
-        numpy array of shape (num_points, 2) with (x, y) coordinates
+
+def greedy_snake(contour, image_energy, alpha=0.1, beta=0.1):
     """
-    cx, cy = center
-    angles = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
-    x = cx + radius * np.cos(angles)
-    y = cy + radius * np.sin(angles)
-    contour = np.column_stack([x, y]).astype(int)
-    return contour
+    Returns:
+        Updated contour with points moved to local minimum energy positions
+    """
+    new_contour = contour.copy()
+    h, w = image_energy.shape
+
+    for i in range(len(contour)):
+        x, y = new_contour[i]  # Use new_contour to evolve with updated neighbors
+        best_energy = float("inf")
+        best_point = (x, y)
+
+        # Search in 3x3 neighbourhood for minimum energy point
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                nx, ny = x + dx, y + dy
+                
+                # Boundary check: clamp coordinates
+                nx = max(0, min(nx, w - 1))
+                ny = max(0, min(ny, h - 1))
+                candidate = (nx, ny)
+
+                # Internal energy (elasticity + curvature)
+                E_int = compute_internal_energy(new_contour, i, candidate, alpha, beta)
+                # Image energy (attraction to edges)
+                E_img = image_energy[ny, nx]
+                # Total energy
+                E = E_int + E_img
+
+                if E < best_energy:
+                    best_energy = E
+                    best_point = candidate
+
+        new_contour[i] = best_point
+
+    return new_contour
+
+
 
 def evolve_snake(image, contour, num_iterations=50, alpha=0.1, beta=0.1):
     """Evolve snake contour for multiple iterations.
@@ -57,6 +80,26 @@ def evolve_snake(image, contour, num_iterations=50, alpha=0.1, beta=0.1):
         'energy_map': image_energy
     }
 
+
+
+
+def initialize_circular_contour(center, radius, num_points=50):
+    """Initialize a circular contour around given center.
+    
+    Args:
+        center: (cx, cy) center point
+        radius: radius of circle
+        num_points: number of points on the contour
+    
+    Returns:
+        numpy array of shape (num_points, 2) with (x, y) coordinates
+    """
+    cx, cy = center
+    angles = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
+    x = cx + radius * np.cos(angles)
+    y = cy + radius * np.sin(angles)
+    contour = np.column_stack([x, y]).astype(int)
+    return contour
 
 
 

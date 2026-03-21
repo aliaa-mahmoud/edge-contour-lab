@@ -2,7 +2,7 @@
 * {
     font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
     font-size: 12pt;
-    color: #e2e8f0;
+    color: #f0e5e2;
 }
 
 QMainWindow,
@@ -67,16 +67,23 @@ QTabWidget::tab-bar {
 }
 QTabBar {
     background: #13131f;
+
 }
 QTabBar::tab {
     background-color: #13131f;
     color: #64648a;
     font-size: 12pt;
     font-weight: 500;
-    padding: 10px 22px;
+    padding: 10px 28px;
     border: none;
     border-bottom: 2px solid transparent;
-    margin-right: 2px;
+    margin-right: 8px;
+    min-width: 120px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+
 }
 QTabBar::tab:hover {
     color: #a5a5cc;
@@ -127,7 +134,7 @@ QPushButton {
 QPushButton:hover {
     background-color: #26264a;
     border-color: #4a4a80;
-    color: #e2e8f0;
+    color: #f0e2e2;
 }
 QPushButton:pressed {
     background-color: #1a1a30;
@@ -365,7 +372,7 @@ QScrollBar::sub-line:horizontal {
 /* ── Tooltip ──────────────────────────────────────────────────────────── */
 QToolTip {
     background-color: #1e1e35;
-    color: #e2e8f0;
+    color: #f0e2ec;
     border: 1px solid #3a3a60;
     border-radius: 6px;
     padding: 5px 10px;
