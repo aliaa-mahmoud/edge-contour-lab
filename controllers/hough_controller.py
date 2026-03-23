@@ -64,10 +64,7 @@ class _HoughWorker(QThread):
                     sigma=self._params.get("sigma", 1.4),
                     low_ratio=self._params.get("low_ratio", 0.05),
                     high_ratio=self._params.get("high_ratio", 0.15),
-                    min_radius=self._params.get("min_radius", 10),
-                    max_radius=self._params.get("max_radius", 100),
                     threshold_percentage=self._params.get("threshold_percentage", 0.9),
-                    distance=self._params.get("distance", 15),
                 )
             elif self._detection_type == "ellipse":
                 result = run_hough_ellipse_detection(
@@ -76,10 +73,7 @@ class _HoughWorker(QThread):
                     sigma=self._params.get("sigma", 1.4),
                     low_ratio=self._params.get("low_ratio", 0.05),
                     high_ratio=self._params.get("high_ratio", 0.15),
-                    min_semi_major=self._params.get("min_semi_major", 15),
-                    max_semi_major=self._params.get("max_semi_major", 150),
                     threshold_percentage=self._params.get("threshold_percentage", 0.9),
-                    distance=self._params.get("distance", 20),
                 )
             else:  # line
                 result = run_hough_line_detection(
@@ -234,6 +228,9 @@ class HoughController(MainController):
         self._image_view.set_array(result["marked_image"])
         
         # Update stats based on detected shapes
+        if not hasattr(self._ui, 'shapesStatsLbl'):
+            return
+            
         if "lines" in result:
             shapes = result.get("lines", [])
             self._ui.shapesStatsLbl.setText(
@@ -253,5 +250,7 @@ class HoughController(MainController):
                 f"Result size: {result['marked_image'].shape[1]} × {result['marked_image'].shape[0]}"
             )
         
-        self._ui.shapesDetectBtn.setEnabled(True)
-        self._ui.shapesSaveBtn.setEnabled(True)
+        if hasattr(self._ui, 'shapesDetectBtn'):
+            self._ui.shapesDetectBtn.setEnabled(True)
+        if hasattr(self._ui, 'shapesSaveBtn'):
+            self._ui.shapesSaveBtn.setEnabled(True)
